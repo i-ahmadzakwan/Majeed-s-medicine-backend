@@ -15,13 +15,27 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// ✅ UPDATED CORS Configuration with OPTIONS handling
+// ✅ UPDATED CORS - Allow all Vercel preview URLs
 const corsOptions = {
-  origin: [
-    'https://majeed-s-medicine.vercel.app',
-    'http://localhost:8080',
-    'http://localhost:5173'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    // Allow all vercel.app domains and localhost
+    const allowedOrigins = [
+      'https://majeed-s-medicine.vercel.app',
+      'http://localhost:8080',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
+    
+    // Check if origin matches allowed origins or is a Vercel preview URL
+    if (allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
